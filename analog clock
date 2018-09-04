@@ -1,0 +1,152 @@
+import sys,random,math,pygame,time
+from pygame.locals import *
+from datetime import datetime
+
+def print_text(font,x,y,text,color = (255,255,255)):
+    imgText = font.render(text,True,color)
+    screen.blit(imgText,(x,y))
+    
+def wrap_angle(angle):
+    return angle % 360
+
+
+pygame.init()
+screen = pygame.display.set_mode((600,500))
+pygame.display.set_caption("Analog Clock Demo!")
+font = pygame.font.Font(None,36)
+orange = 220,180,0
+white = 255,255,255
+yellow = 255,255,0
+pink = 255,100,100
+
+StrWeekday= ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
+miaobiao_flag = False
+
+pos_x = 300
+pos_y = 250
+radius = 250
+angle = 360
+current = 0
+
+
+while True:
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            sys.exit()
+        elif event.type == MOUSEBUTTONUP:
+            if miaobiao_flag == False:
+                miaobiao_flag = True
+                clock_start = time.clock()
+            else:
+                miaobiao_flag = False
+                
+    keys = pygame.key.get_pressed()
+    if keys[K_ESCAPE]:
+        sys.exit()
+        
+        
+    today = datetime.today() 
+    years = today.year
+    months = today.month
+    days = today.day
+    weekdays = today.weekday()
+    hours = today.hour % 12
+    minutes = today.minute
+    seconds = today.second
+
+    screen.fill((0,0,0))        
+    
+    for n in range(0,60):
+        angle = math.radians(n*(360/60)-90)
+        x = math.cos(angle)*(radius)
+        y = math.sin(angle)*(radius)
+        if(n %5 == 0):
+            pygame.draw.line(screen,(0xcd,0x32,0x78),(pos_x+x,pos_y+y),(pos_x+x*0.85,pos_y+y*0.85),4)
+        else:
+            pygame.draw.line(screen,(0x1e,0x90,0xff),(pos_x+x,pos_y+y),(pos_x+x*0.9,pos_y+y*0.9),3)
+            
+    for n in range(0,60):
+        angle = math.radians(n*(360/60)-90)
+        x = math.cos(angle)*(63)
+        y = math.sin(angle)*(63)
+        if(n %5 == 0):
+            pygame.draw.line(screen,(0x8b,0x1a,0x1a),(200+x,330+y),(200+x*0.85,330+y*0.85),3)
+        else:
+            pygame.draw.line(screen,(0x63,0x8b,0xff),(200+x,330+y),(200+x*0.9,330+y*0.9),2)
+    
+    for n in range(0,12):
+        angle = math.radians(n*(360/12)-90)
+        x = math.cos(angle)*(63)
+        y = math.sin(angle)*(63)
+        pygame.draw.line(screen,(0x9f,0x79,0xee),(400+x,330+y),(400+x*0.85,330+y*0.85),3)
+            
+            
+    
+    
+    pygame.draw.arc(screen,(0xc0,0xff,0x3e),(250,200,100,50),math.radians(30),math.radians(150),3)
+    pygame.draw.arc(screen,(0xc0,0xff,0x3e),(150,100,300,250),math.radians(30),math.radians(150),3)
+    print_text(font,255,120,str(years)+'-'+str(months)+'-'+str(days))
+    print_text(font,255,155,StrWeekday[weekdays])
+    
+    pygame.draw.circle(screen,white,(pos_x,pos_y),radius,6)
+    pygame.draw.circle(screen,(0x83,0x6f,255),(200,330),66,3)
+    pygame.draw.circle(screen,(0x7f,0xff,0),(400,330),66,3)
+    
+    for n in range(1,13):
+        angle = math.radians(n*(360/12)-90)
+        x = math.cos(angle)*(radius-20)-10
+        y = math.sin(angle)*(radius-20)-10
+        print_text(font,pos_x+x,pos_y+y,str(n))
+
+    
+    hour_angle = wrap_angle(hours*(360/12)-90)
+    hour_angle = math.radians(hour_angle)
+    hour_x = math.cos(hour_angle)*(radius - 80)
+    hour_y = math.sin(hour_angle)*(radius - 80)
+    target = (pos_x +hour_x,pos_y+hour_y)
+    pygame.draw.line(screen,pink,(pos_x,pos_y),target,9)
+    
+    min_angle = wrap_angle(minutes*(360/60)-90)
+    min_angle = math.radians(min_angle)
+    min_x = math.cos(min_angle)*(radius - 60)
+    min_y = math.sin(min_angle)*(radius - 60)
+    target = (pos_x +min_x,pos_y+min_y)
+    pygame.draw.line(screen,orange,(pos_x,pos_y),target,6)
+    
+    sec_angle = wrap_angle(seconds*(360/60)-90)
+    sec_angle = math.radians(sec_angle)
+    sec_x = math.cos(sec_angle)*(radius - 40)
+    sec_y = math.sin(sec_angle)*(radius - 40)
+    target = (pos_x +sec_x,pos_y+sec_y)
+    pygame.draw.line(screen,yellow,(pos_x,pos_y),target,3)
+    
+    if miaobiao_flag == True:
+        current = time.clock() - clock_start
+        sec0 = wrap_angle(int(current)%60*(360/60)-90)
+        sec0 = math.radians(sec0)
+        sec1 = wrap_angle(int(current*12)%12*(360/12)-90)
+        sec1 = math.radians(sec1)
+        sec0_x = math.cos(sec0)*(66 - 15)
+        sec0_y = math.sin(sec0)*(66 - 15)
+        sec1_x = math.cos(sec1)*(66 - 15)
+        sec1_y = math.sin(sec1)*(66 - 15)
+        pygame.draw.line(screen,(0xb0,0x30,0x60),(200,330),(200 +sec0_x,330+sec0_y),3)
+        pygame.draw.line(screen,(0xcd,0xc6,0x73),(400,330),(400 +sec1_x,330+sec1_y),3)
+    else:
+        sec0_x = 0
+        sec0_y = -51
+        sec1_x = 0
+        sec1_y = -51     
+        pygame.draw.line(screen,(0xb0,0x30,0x60),(200,330),(200 +sec0_x,330+sec0_y),3)
+        pygame.draw.line(screen,(0xcd,0xc6,0x73),(400,330),(400 +sec1_x,330+sec1_y),3)
+    
+    pygame.draw.circle(screen,white,(pos_x,pos_y),20)
+    pygame.draw.circle(screen,(0xca,0xff,0x70),(200,330),6)
+    pygame.draw.circle(screen,(0xb0,0xe2,0xff),(400,330),6)
+
+    print_text(font,0,0,str(hours)+':'+str(minutes)+':'+str(seconds))
+    print_text(font,0,0,str(hours)+':'+str(minutes)+':'+str(seconds))
+    print_text(font,0,26,"Click to time!")
+    print_text(font,270,400,str(int(current))+'s'+str(int(int(current*12)%12*1000/12))+'ms')
+        
+    pygame.display.update()
